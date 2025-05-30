@@ -1,0 +1,7 @@
+C:\Users\joel_\source\repos\ClienteCalculadora\ClienteCalculadora\obj\Debug\ClienteCalculadora.csproj.AssemblyReference.cache
+C:\Users\joel_\source\repos\ClienteCalculadora\ClienteCalculadora\obj\Debug\ClienteCalculadora.csproj.CoreCompileInputs.cache
+C:\Users\joel_\source\repos\ClienteCalculadora\ClienteCalculadora\bin\Debug\ClienteCalculadora.exe.config
+C:\Users\joel_\source\repos\ClienteCalculadora\ClienteCalculadora\bin\Debug\ClienteCalculadora.exe
+C:\Users\joel_\source\repos\ClienteCalculadora\ClienteCalculadora\bin\Debug\ClienteCalculadora.pdb
+C:\Users\joel_\source\repos\ClienteCalculadora\ClienteCalculadora\obj\Debug\ClienteCalculadora.exe
+C:\Users\joel_\source\repos\ClienteCalculadora\ClienteCalculadora\obj\Debug\ClienteCalculadora.pdb
