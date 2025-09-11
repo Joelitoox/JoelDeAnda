@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat con Joel + Eliza</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            justify-content: flex-end;
+        }
+        .chat-container {
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+        }
+        .avatar {
+            width: 150px; 
+            height: 250px; 
+            margin-right: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background-color: #ddd;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .chat-history {
+            flex-grow: 1;
+            max-height: 400px;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .chat-history p {
+            margin: 5px 0;
+            padding: 8px 12px;
+            background-color: #e4e6eb;
+            border-radius: 15px;
+            max-width: 70%;
+        }
+        .chat-history p.joel {
+            background-color: #007bff;
+            color: white;
+            text-align: left;
+        }
+        .chat-input-container {
+            display: flex;
+            margin-top: 15px;
+            padding: 0 20px 20px 20px;
+        }
+        .chat-input-container input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            outline: none;
+            font-size: 16px;
+        }
+        .chat-input-container button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .chat-input-container button:hover {
+            background-color: #0056b3;
+        }
+        .chat-history::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-history::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="avatar">
+            <img src="gifpersonahablando.gif" alt="Avatar Joel">
+        </div>
+        <div class="chat-history" id="chatHistory"></div>
+    </div>
+
+    <div class="chat-input-container">
+        <input type="text" id="chatInput" placeholder="Escribe tu mensaje...">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <!-- Scripts de Eliza -->
+    <script src="elizadata.js"></script>
+    <script src="elizabot.js"></script>
+
+    <script>
+        // Base de conocimiento de Joel
+        const respuestasJoel = {
+            "como te llamas?": "Mi nombre es Joel.",
+            "cuantos anos tienes?": "Tengo 21 años.",
+            "donde naciste?": "Nací en Guadalajara, Jalisco.",
+            "que estudias?": "Estudio Ingeniería en Sistemas.",
+            "que lenguaje de programacion prefieres?": "Prefiero Python.",
+            "cual es tu comida favorita?": "Me gusta la pizza."
+        };
+
+        // Inicializar Eliza
+        const eliza = new ElizaBot();
+        eliza.reset();
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            let message = input.value.trim();
+            if (message === "") return;
+
+            const chatHistory = document.getElementById('chatHistory');
+
+            // Mostrar mensaje del usuario
+            const userMsg = document.createElement('p');
+            userMsg.textContent = message;
+            chatHistory.appendChild(userMsg);
+
+            let response = respuestasJoel[message.toLowerCase()];
+
+            // Si Joel no sabe, responde Eliza
+            if (!response) {
+                response = eliza.transform(message);
+            }
+
+            // Mostrar respuesta del bot
+            const botMsg = document.createElement('p');
+            botMsg.textContent = response;
+            botMsg.classList.add('joel');
+            chatHistory.appendChild(botMsg);
+
+            input.value = "";
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // Enviar con Enter
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
