@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tres en Raya — IA con Dificultad</title>
+  <style>
+    body {
+      background: radial-gradient(circle at center, #0b1523 0%, #101b28 100%);
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .app {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    h1 { margin-top: 0; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 10px;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: #121a22;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2.5rem;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #dbeafe;
+    }
+
+    .cell:hover { background: #1f2b3a; }
+    .cell.win { background: #14321e; outline: 2px solid #25d366; }
+
+    .status { margin-top: 10px; font-size: 1.1em; }
+
+    button, select {
+      background: #2a7afc;
+      border: none;
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    select {
+      background: #1f2b3a;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>✖️⭕ Tres en Raya (IA)</h1>
+    <div>
+      <label for="dificultad">Dificultad:</label>
+      <select id="dificultad">
+        <option value="easy">Fácil 😅</option>
+        <option value="medium">Media 😐</option>
+        <option value="hard">Difícil 😤</option>
+        <option value="unbeatable" selected>Imbatible 🧠</option>
+      </select>
+    </div>
+    <div class="status" id="status">Tu turno (✖️)</div>
+    <div id="board" class="board"></div>
+    <button id="reset">Nueva partida</button>
+  </div>
+
+  <script>
+    const HUMAN='✖️', AI='⭕';
+    const WIN_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    const boardEl=document.getElementById("board");
+    const statusEl=document.getElementById("status");
+    const reset=document.getElementById("reset");
+    const difSelect=document.getElementById("dificultad");
+    let board=[], gameOver=false;
+
+    function render(){
+      boardEl.innerHTML="";
+      board.forEach((v,i)=>{
+        const c=document.createElement("div");
+        c.className="cell";
+        c.textContent=v?v:"";
+        c.onclick=()=>{if(!v&&!gameOver)jugadaHumano(i);};
+        boardEl.appendChild(c);
+      });
+    }
+
+    function vacias(b){ return b.map((v,i)=>v?null:i).filter(v=>v!==null); }
+
+    function ganador(b){
+      for(const [a,b2,c] of WIN_LINES){
+        if(b[a]&&b[a]===b[b2]&&b[a]===b[c]) return {ganador:b[a],linea:[a,b2,c]};
+      }
+      if(vacias(b).length===0) return {ganador:"EMPATE"};
+      return null;
+    }
+
+    function minimax(b, jugador){
+      const res=ganador(b);
+      if(res){
+        if(res.ganador===AI) return {score:10};
+        if(res.ganador===HUMAN) return {score:-10};
+        return {score:0};
+      }
+      const moves=[];
+      for(const i of vacias(b)){
+        const mov={i};
+        b[i]=jugador;
+        mov.score=minimax(b, jugador===AI?HUMAN:AI).score;
+        b[i]=null;
+        moves.push(mov);
+      }
+      if(jugador===AI){
+        return moves.reduce((a,b)=>a.score>b.score?a:b);
+      }else{
+        return moves.reduce((a,b)=>a.score<b.score?a:b);
+      }
+    }
+
+    function jugadaHumano(i){
+      board[i]=HUMAN;
+      render();
+      const res=ganador(board);
+      if(res){ fin(res); return; }
+      setTimeout(jugadaIA,300);
+    }
+
+    function jugadaIA(){
+      const diff=difSelect.value;
+      const vac=vacias(board);
+      let move;
+
+      if(diff==="unbeatable"){
+        move=minimax(board,AI);
+      } else {
+        // IA más torpe según dificultad
+        if(Math.random()< (diff==="easy"?0.8: diff==="medium"?0.5:0.2)){
+          const randomIndex=vac[Math.floor(Math.random()*vac.length)];
+          move={i:randomIndex};
+        } else {
+          move=minimax(board,AI);
+        }
+      }
+
+      if(move&&move.i!==undefined) board[move.i]=AI;
+      render();
+      const res=ganador(board);
+      if(res) fin(res);
+    }
+
+    function fin(res){
+      gameOver=true;
+      if(res.ganador==="EMPATE"){
+        statusEl.textContent="Empate 🤝";
+      }else if(res.ganador===HUMAN){
+        statusEl.textContent="¡Ganaste! ✨";
+      }else{
+        statusEl.textContent="La IA gana 💻";
+      }
+      if(res.linea) res.linea.forEach(i=>boardEl.children[i].classList.add("win"));
+    }
+
+    function iniciarJuego(){
+      board=Array(9).fill(null);
+      gameOver=false;
+      statusEl.textContent="Tu turno (✖️)";
+      render();
+    }
+
+    reset.onclick=iniciarJuego;
+    difSelect.onchange=iniciarJuego;
+    iniciarJuego();
+  </script>
+</body>
+</html>
